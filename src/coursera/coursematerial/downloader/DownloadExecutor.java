@@ -28,6 +28,11 @@ public class DownloadExecutor {
 		}
 	}
 	
+	/*
+	 * Removed non alphabetical characters from file name
+	 * Certain characters in file name caused NullPointerException
+	 * TODO: fix this issue
+	 */
 	private String removeInvalidCharacters(String fileName) {
 		char[] buffer = new char[1000];
 		int p = 0;

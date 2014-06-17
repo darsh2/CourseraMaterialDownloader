@@ -27,6 +27,12 @@ public class Downloader implements Runnable {
 			connection.setRequestProperty("Range", "bytes=0-");
 			connection.connect();
 			
+			/*
+			 * code for downloading a file taken from
+			 * http://stackoverflow.com/questions/921262/how-to-download-and-save-a-file-from-internet-using-java
+			 * from dfa's answer
+			 */
+			
 			int fileSize = connection.getContentLength();
 			rbc = Channels.newChannel(connection.getInputStream());
 			out = new FileOutputStream(download);

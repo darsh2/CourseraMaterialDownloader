@@ -193,6 +193,11 @@ public class DownloadMaterial {
 	
 	@SuppressWarnings("finally")
 	private File getDownloadPath() {
+		/*
+		 * Code for using JFileChooser for selecting save download path taken from
+		 * http://stackoverflow.com/questions/10524376/how-to-make-jfilechooser-default-to-computer-view-instead-of-my-documents
+		 * from Hovercraft Full Of Eels's answer
+		 */
 		File file = null;
 		try {
 			FileSystemView view = FileSystemView.getFileSystemView();
