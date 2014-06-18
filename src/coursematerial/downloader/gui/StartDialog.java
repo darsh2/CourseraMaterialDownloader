@@ -30,7 +30,8 @@ public class StartDialog extends JFrame {
 	private JButton button;
 	private JPanel loginPanel;
 	
-	private String email, password;
+	private String email, password, cookie;
+	private SignIn login;
 	
 	public void createStartDialog() {
 		setTitle("Coursera Course Material Downloader");
@@ -45,6 +46,7 @@ public class StartDialog extends JFrame {
 				System.exit(0);
 			}
 		});
+		setLocationRelativeTo(null);
 	}
 	
 	private void setUpLoginFields() {
@@ -81,12 +83,14 @@ public class StartDialog extends JFrame {
 
 					@Override
 					protected Integer doInBackground() throws Exception {
-						return new SignIn(email, password).validator();
+						login = new SignIn(email, password);
+						return login.validator();
 					}
 					
 					@Override
 					protected void done() {
 						try {
+							cookie = login.getCookie();
 							loginResult(get());
 						} catch (InterruptedException | ExecutionException e) {
 							e.printStackTrace();
@@ -119,7 +123,7 @@ public class StartDialog extends JFrame {
 
 				@Override
 				public void run() {
-					new DownloadMaterial().showDownloaderGUI();
+					new DownloadMaterial(cookie).showDownloaderGUI();
 				}
 				
 			});

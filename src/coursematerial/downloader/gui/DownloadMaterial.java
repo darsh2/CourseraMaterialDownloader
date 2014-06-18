@@ -27,9 +27,10 @@ import coursera.coursematerial.downloader.URLChecker;
 
 public class DownloadMaterial {
 	private String URL;
+	private final String cAUTHCookie;
 	private ArrayList<String> titles, downloads, toDownload, downloadTitle;
 	private final boolean DEBUG = false;
-	
+
 	private JLabel prompt, status;
 	private JTextField getInput;
 	private JButton button, lectures;
@@ -38,16 +39,21 @@ public class DownloadMaterial {
 	private JScrollPane tableScroller;
 	private DownloadTable table;
 	
+	public DownloadMaterial(String cookie) {
+		cAUTHCookie = cookie;
+	}
+	
 	public void showDownloaderGUI() {
 		setUpButtons();
 		setUpPanel();
-		
+
 		frame = new JFrame("Lecture List");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(800, 500);
 		frame.add(downloadPanel);
+		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
-		
+
 		button.addActionListener(new ActionListener() {
 
 			@Override
@@ -57,44 +63,44 @@ public class DownloadMaterial {
 					frame.revalidate();
 					frame.repaint();
 				}
-				
+
 				URL = getInput.getText();
 				URL = new URLChecker(URL).checker();
-				
+
 				if (URL == null) {
 					if (status != null) {
 						downloadPanel.remove(status);
 						frame.revalidate();
 						frame.repaint();
 					}
-					
+
 					status = new JLabel("Incorrect address");
 					prompt.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
 					status.setForeground(Color.RED);
-					
+
 					downloadPanel.add(status);
 					frame.revalidate();
 					frame.repaint();
 				}
-				
+
 				else
 					addTableDisplay();
 			}
-			
+
 		});
 	}
-	
+
 	private void setUpButtons() {
 		prompt = new JLabel("Enter URL of course lecture page");
 		prompt.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
-		
+
 		getInput = new JTextField();
 		getInput.setMaximumSize(new Dimension(Integer.MAX_VALUE, 20));
 		prompt.setLabelFor(getInput);
-		
+
 		button = new JButton("Get Lecture Videos");
 		button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
-		
+
 		lectures = new JButton("Download Lectures");
 		lectures.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
 	}
@@ -107,10 +113,10 @@ public class DownloadMaterial {
 		downloadPanel.add(button);
 		downloadPanel.add(lectures);
 	}
-	
+
 	private void addTableDisplay() {
 		table = new DownloadTable("Lectures");
-		DownloadLinks links = new DownloadLinks(URL);
+		DownloadLinks links = new DownloadLinks(URL, cAUTHCookie);
 		titles = links.getLectureTitles();
 		downloads = links.getLectures();
 		
@@ -118,26 +124,26 @@ public class DownloadMaterial {
 		while (it.hasNext())
 			table.addRows(it.next());
 		table.fireTableRowsInserted(table.getRowCount() - 1, table.getColumnCount() - 1);
-		
+
 		if (tableScroller != null) {
 			downloadPanel.remove(tableScroller);
 			frame.validate();
 			frame.repaint();
 		}
-		
+
 		tableScroller = new JScrollPane(new JTable(table));
 		downloadPanel.add(tableScroller);
-		
+
 		frame.add(downloadPanel);
 		frame.validate();
 		frame.repaint();
-		
+
 		lectures.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				getSelectedDownloads();
-				
+
 				if (toDownload.isEmpty())
 					addStatus("Select atleast one lecture", -1);
 				else {
@@ -149,7 +155,7 @@ public class DownloadMaterial {
 							protected Integer doInBackground() {
 								return new DownloadExecutor().executeDownload(toDownload, downloadTitle, convertFilePath(file.toString()), ".mp4");
 							}
-							
+
 							@Override
 							protected void done() {
 								try {
@@ -171,10 +177,10 @@ public class DownloadMaterial {
 					}
 				}
 			}
-			
+
 		});
 	}
-	
+
 	private void getSelectedDownloads() {
 		toDownload = new ArrayList<String>(); downloadTitle = new ArrayList<String>();
 		int p = 0;
@@ -182,15 +188,15 @@ public class DownloadMaterial {
 			if ((boolean) table.isSelected(i)) {
 				toDownload.add(downloads.get(i));
 				downloadTitle.add(titles.get(i));
-				
+
 				if (DEBUG)
 					System.out.println(toDownload.get(p) + " " + downloadTitle.get(p));
-				
+
 				p++;
 			}
 		}
 	}
-	
+
 	@SuppressWarnings("finally")
 	private File getDownloadPath() {
 		/*
@@ -222,7 +228,7 @@ public class DownloadMaterial {
 			return file;
 		}
 	}
-	
+
 	private String convertFilePath(String file) {
 		char[] buffer = new char[10000];
 		int p = 0;
@@ -239,21 +245,21 @@ public class DownloadMaterial {
 			buffer[p++] = '\\';
 			buffer[p++] = '\\';	
 		}
-		
+
 		char[] filePath = new char[p];
 		for (int i = 0; i < p; i++)
 			filePath[i] = buffer[i];
-		
+
 		return new String(filePath);
 	}
-	
+
 	private void addStatus(String text, int type) {
 		if (status != null) {
 			downloadPanel.remove(status);
 			frame.revalidate();
 			frame.repaint();
 		}
-		
+
 		status = new JLabel(text);
 		status.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
 		if (type == 0)
@@ -262,7 +268,7 @@ public class DownloadMaterial {
 			status.setForeground(Color.BLUE);
 		else
 			status.setForeground(Color.RED);
-		
+
 		downloadPanel.add(status);
 		frame.revalidate();
 		frame.repaint();

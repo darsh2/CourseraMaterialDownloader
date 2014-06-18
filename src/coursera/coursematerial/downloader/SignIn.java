@@ -9,8 +9,8 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class SignIn {
 	private final String link = "https://accounts.coursera.org/api/v1/login";
-	public String email, password, formData, cAUTHCookie;
-	public List<String> cookies;
+	private String email, password, formData, cAUTHCookie;
+	private List<String> cookies;
 	
 	public SignIn(String email, String password) {
 		this.email = email;
@@ -27,6 +27,7 @@ public class SignIn {
 			connection.setRequestProperty("X-CSRF2-Cookie", "csrf2Cookie");
 			connection.setRequestProperty("X-CSRFToken", "csrfToken");
 			connection.setRequestProperty("Cookie", "csrftoken=csrfToken; csrf2Cookie=csrf2Token");
+			connection.setRequestProperty("User-Agent", "Chrome/35.0.1916.153");
 			
 			connection.setDoOutput(true);
 			OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
@@ -60,5 +61,9 @@ public class SignIn {
 			e.printStackTrace();
 			return 2;
 		}
+	}
+	
+	public String getCookie() {
+		return cAUTHCookie;
 	}
 }
