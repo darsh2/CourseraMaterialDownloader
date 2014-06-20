@@ -7,16 +7,13 @@ import java.util.concurrent.TimeUnit;
 
 public class DownloadExecutor {
 	public int executeDownload(ArrayList<String> toDownload, ArrayList<String> titles, 
-			String filePath, String fileType) {
+			String filePath, String fileType, String cookie) {
 		int l = toDownload.size();
 		
 		try {
-			//System.out.println(filePath);
 			ExecutorService executor = Executors.newFixedThreadPool(l < 4 ? l : 4);
-			for (int i = 0; i < l; i++) {
-				//System.out.println(toDownload.get(i) + " " + titles.get(i));
-				executor.submit(new Downloader(toDownload.get(i), removeInvalidCharacters(titles.get(i)), filePath, fileType));
-			}
+			for (int i = 0; i < l; i++)
+				executor.submit(new Downloader(toDownload.get(i), removeInvalidCharacters(titles.get(i)), filePath, fileType, cookie));
 			executor.shutdown();
 			executor.awaitTermination(1, TimeUnit.DAYS);
 			
@@ -28,22 +25,9 @@ public class DownloadExecutor {
 		}
 	}
 	
-	/*
-	 * Removed non alphabetical characters from file name
-	 * Certain characters in file name caused NullPointerException
-	 * TODO: fix this issue
-	 */
 	private String removeInvalidCharacters(String fileName) {
-		char[] buffer = new char[1000];
-		int p = 0;
-		for (int i = 0, l = fileName.length(); i < l; i++) {
-			char e = fileName.charAt(i);
-			if ((e >= 65 && e <= 90) || (e >= 97 && e <= 122) || e == ' ' || e == '\t')
-				buffer[p++] = e;
-		}
-		char[] file = new char[p];
-		for (int i = 0; i < p; i++)
-			file[i] = buffer[i];
-		return new String(file);
+		fileName = fileName.replaceAll("[\\\\/?*\"><|]", "");
+		fileName = fileName.replaceAll(":", "-");
+		return fileName;
 	}
 }

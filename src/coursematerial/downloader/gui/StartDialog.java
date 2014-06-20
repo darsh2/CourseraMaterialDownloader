@@ -5,8 +5,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.BoxLayout;
@@ -41,11 +39,7 @@ public class StartDialog extends JFrame {
 		setUpPanel();
 		
 		add(loginPanel);
-		addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) {
-				System.exit(0);
-			}
-		});
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
 	}
 	
@@ -123,7 +117,7 @@ public class StartDialog extends JFrame {
 
 				@Override
 				public void run() {
-					new DownloadMaterial(cookie).showDownloaderGUI();
+					new ActiveCourses(cookie).listActiveCourses();
 				}
 				
 			});

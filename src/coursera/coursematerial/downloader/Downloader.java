@@ -9,12 +9,13 @@ import java.nio.channels.ReadableByteChannel;
 import javax.net.ssl.HttpsURLConnection;
 
 public class Downloader implements Runnable {
-	private String URL, filePath;
+	private String URL, filePath, cookie;
 	private FileOutputStream out;
 	
-	public Downloader(String URL, String fileName, String filePath, String fileType) {
+	public Downloader(String URL, String fileName, String filePath, String fileType, String cookie) {
 		this.URL = URL;
 		this.filePath = filePath.concat(fileName).concat(fileType);
+		this.cookie = cookie;
 	}
 	
 	@Override
@@ -24,6 +25,7 @@ public class Downloader implements Runnable {
 			File download = new File(filePath);
 			URL url = new URL(URL);
 			HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+			connection.setRequestProperty("Cookie", cookie);
 			connection.setRequestProperty("Range", "bytes=0-");
 			connection.connect();
 			
@@ -34,6 +36,7 @@ public class Downloader implements Runnable {
 			 */
 			
 			int fileSize = connection.getContentLength();
+			System.out.println(fileSize);
 			rbc = Channels.newChannel(connection.getInputStream());
 			out = new FileOutputStream(download);
 			out.getChannel().transferFrom(rbc, 0, fileSize);

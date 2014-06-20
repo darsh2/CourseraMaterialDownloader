@@ -15,7 +15,6 @@ import org.jsoup.select.Elements;
 public class DownloadLinks {
 	private ArrayList<String> titles, lectures;
 
-	private Elements links;
 	private Document doc;
 	
 	public DownloadLinks(String URL, String cookie) {
@@ -39,18 +38,25 @@ public class DownloadLinks {
 	}
 
 	public ArrayList<String> getLectureTitles() {
-		links = doc.select("a[href]");
 		titles = new ArrayList<String>();
 		lectures = new ArrayList<String>();
-		for (Element link : links) {
-			System.out.println(link);
-			String URL = link.attr("href");
-			if (URL.contains("download.mp4")) {
-				System.out.println(link.text() + " " + URL);
-				titles.add(link.text());
-				lectures.add(URL);
+		
+		Elements weekHeaders = doc.select(".course-item-list-section-list");
+		for (Element weekHeader : weekHeaders) { 
+			Elements weekLectures = weekHeader.children();
+			for (Element lecture : weekLectures) { 
+				titles.add(lecture.select(".lecture-link").text());
+				Elements resources = lecture.select(".course-lecture-item-resource").select("a[href]");
+				for (Element resource : resources) { 
+					String URL = resource.attr("href");
+					if (URL.contains("download.mp4"))
+						lectures.add(URL);
+				}
 			}
 		}
+		/*for (int i = 0, l = titles.size(); i < l; i++) {
+			System.out.println(titles.get(i) + " " + lectures.get(i));
+		}*/
 		return titles;
 	}
 

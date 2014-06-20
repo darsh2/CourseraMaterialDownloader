@@ -17,30 +17,29 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.SwingWorker;
+import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileSystemView;
 
 import coursera.coursematerial.downloader.DownloadExecutor;
 import coursera.coursematerial.downloader.DownloadLinks;
-import coursera.coursematerial.downloader.URLChecker;
 
 public class DownloadMaterial {
 	private String URL;
-	private final String cAUTHCookie;
+	private final String cookie;
 	private ArrayList<String> titles, downloads, toDownload, downloadTitle;
 	private final boolean DEBUG = false;
 
-	private JLabel prompt, status;
-	private JTextField getInput;
-	private JButton button, lectures;
+	private JLabel status;
+	private JButton lectures;
 	private JPanel downloadPanel;
 	private JFrame frame;
 	private JScrollPane tableScroller;
 	private DownloadTable table;
 	
-	public DownloadMaterial(String cookie) {
-		cAUTHCookie = cookie;
+	public DownloadMaterial(String URL, String cookie) {
+		this.URL = URL;
+		this.cookie = cookie;
 	}
 	
 	public void showDownloaderGUI() {
@@ -53,70 +52,24 @@ public class DownloadMaterial {
 		frame.add(downloadPanel);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
-
-		button.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (status != null) {
-					downloadPanel.remove(status);
-					frame.revalidate();
-					frame.repaint();
-				}
-
-				URL = getInput.getText();
-				URL = new URLChecker(URL).checker();
-
-				if (URL == null) {
-					if (status != null) {
-						downloadPanel.remove(status);
-						frame.revalidate();
-						frame.repaint();
-					}
-
-					status = new JLabel("Incorrect address");
-					prompt.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
-					status.setForeground(Color.RED);
-
-					downloadPanel.add(status);
-					frame.revalidate();
-					frame.repaint();
-				}
-
-				else
-					addTableDisplay();
-			}
-
-		});
+		frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		addTableDisplay();
 	}
 
 	private void setUpButtons() {
-		prompt = new JLabel("Enter URL of course lecture page");
-		prompt.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
-
-		getInput = new JTextField();
-		getInput.setMaximumSize(new Dimension(Integer.MAX_VALUE, 20));
-		prompt.setLabelFor(getInput);
-
-		button = new JButton("Get Lecture Videos");
-		button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
-
 		lectures = new JButton("Download Lectures");
 		lectures.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
 	}
 
 	private void setUpPanel() {
 		downloadPanel = new JPanel();
-		downloadPanel.setLayout(new BoxLayout(downloadPanel, BoxLayout.Y_AXIS));
-		downloadPanel.add(prompt);
-		downloadPanel.add(getInput);
-		downloadPanel.add(button);
+		downloadPanel.setLayout(new BoxLayout(downloadPanel, BoxLayout.PAGE_AXIS));
 		downloadPanel.add(lectures);
 	}
 
 	private void addTableDisplay() {
 		table = new DownloadTable("Lectures");
-		DownloadLinks links = new DownloadLinks(URL, cAUTHCookie);
+		DownloadLinks links = new DownloadLinks(URL, cookie);
 		titles = links.getLectureTitles();
 		downloads = links.getLectures();
 		
@@ -134,7 +87,6 @@ public class DownloadMaterial {
 		tableScroller = new JScrollPane(new JTable(table));
 		downloadPanel.add(tableScroller);
 
-		frame.add(downloadPanel);
 		frame.validate();
 		frame.repaint();
 
@@ -153,13 +105,12 @@ public class DownloadMaterial {
 
 							@Override
 							protected Integer doInBackground() {
-								return new DownloadExecutor().executeDownload(toDownload, downloadTitle, convertFilePath(file.toString()), ".mp4");
+								return new DownloadExecutor().executeDownload(toDownload, downloadTitle, convertFilePath(file.toString()), ".mp4", cookie);
 							}
 
 							@Override
 							protected void done() {
 								try {
-									button.setEnabled(true);
 									lectures.setEnabled(true);
 									if (get() == 0)
 										addStatus("Download Complete", 0);
@@ -171,7 +122,6 @@ public class DownloadMaterial {
 							}
 						};
 						download.execute();
-						button.setEnabled(false);
 						lectures.setEnabled(false);
 						addStatus("Download in progress", 1);
 					}
@@ -230,27 +180,10 @@ public class DownloadMaterial {
 	}
 
 	private String convertFilePath(String file) {
-		char[] buffer = new char[10000];
-		int p = 0;
-		for (int i = 0, l = file.length(); i < l; i++) {
-			char e = file.charAt(i);
-			if (e != '\\')
-				buffer[p++] = e;
-			else {
-				buffer[p++] = '\\';
-				buffer[p++] = '\\';
-			}
-		}
-		if (buffer[p - 1] != '\\') {
-			buffer[p++] = '\\';
-			buffer[p++] = '\\';	
-		}
-
-		char[] filePath = new char[p];
-		for (int i = 0; i < p; i++)
-			filePath[i] = buffer[i];
-
-		return new String(filePath);
+		file = file.replaceAll("[\\\\]", "\\\\\\\\");
+		if (file.charAt(file.length() - 1) != '\\')
+			file.concat("\\\\\\\\");
+		return file;
 	}
 
 	private void addStatus(String text, int type) {
