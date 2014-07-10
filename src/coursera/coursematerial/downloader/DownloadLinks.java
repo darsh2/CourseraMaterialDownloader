@@ -40,12 +40,17 @@ public class DownloadLinks {
 	public ArrayList<String> getLectureTitles() {
 		titles = new ArrayList<String>();
 		lectures = new ArrayList<String>();
-		
+
+		String format = "%d - %d - ";
+		int weekCount = 0;
 		Elements weekHeaders = doc.select(".course-item-list-section-list");
-		for (Element weekHeader : weekHeaders) { 
+		for (Element weekHeader : weekHeaders) {
+			weekCount++;
 			Elements weekLectures = weekHeader.children();
-			for (Element lecture : weekLectures) { 
-				titles.add(lecture.select(".lecture-link").text());
+			int weeklyLectureCount = 0;
+			for (Element lecture : weekLectures) {
+				weeklyLectureCount++;
+				titles.add(String.format(format, weekCount, weeklyLectureCount) + lecture.select(".lecture-link").text());
 				Elements resources = lecture.select(".course-lecture-item-resource").select("a[href]");
 				for (Element resource : resources) { 
 					String URL = resource.attr("href");
@@ -54,9 +59,6 @@ public class DownloadLinks {
 				}
 			}
 		}
-		/*for (int i = 0, l = titles.size(); i < l; i++) {
-			System.out.println(titles.get(i) + " " + lectures.get(i));
-		}*/
 		return titles;
 	}
 

@@ -68,6 +68,7 @@ public class ActiveCourses implements ItemListener {
 			if (retry == null) {
 				retry = new JButton("Retry");
 				panel.add(retry);
+				
 				frame.revalidate();
 				frame.repaint();
 				

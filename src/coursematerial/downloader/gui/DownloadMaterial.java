@@ -182,7 +182,7 @@ public class DownloadMaterial {
 	private String convertFilePath(String file) {
 		file = file.replaceAll("[\\\\]", "\\\\\\\\");
 		if (file.charAt(file.length() - 1) != '\\')
-			file.concat("\\\\\\\\");
+			file = file.concat("\\\\\\\\");
 		return file;
 	}
 

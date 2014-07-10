@@ -27,13 +27,13 @@ public class SignIn {
 			connection.setRequestProperty("X-CSRF2-Cookie", "csrf2Cookie");
 			connection.setRequestProperty("X-CSRFToken", "csrfToken");
 			connection.setRequestProperty("Cookie", "csrftoken=csrfToken; csrf2Cookie=csrf2Token");
-			connection.setRequestProperty("User-Agent", "Chrome/35.0.1916.153");
 			
 			connection.setDoOutput(true);
+			
 			OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
 			email = URLEncoder.encode(email, "UTF-8");
 			password = URLEncoder.encode(password, "UTF-8");
-			formData = String.format("email=%s&password=%s", email, password);
+			formData = String.format("email=%s&password=%s&webrequest=true", email, password);
 			out.write(formData);
 			out.flush();
 			out.close();
