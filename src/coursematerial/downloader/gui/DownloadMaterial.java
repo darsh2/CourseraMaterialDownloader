@@ -49,7 +49,6 @@ public class DownloadMaterial {
 		frame = new JFrame("Course Item Resource List");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(800, 500);
-		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		frame.add(downloadPanel);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
@@ -171,7 +170,7 @@ public class DownloadMaterial {
 			file = view.getDefaultDirectory();
 			while (file != null) {
 				file = file.getParentFile();
-				if (file != null && "Computer".equalsIgnoreCase(file.toString())) {
+				if (file != null) {
 					JFileChooser fileChooser = new JFileChooser(file);
 			        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 			        int result = fileChooser.showOpenDialog(null);

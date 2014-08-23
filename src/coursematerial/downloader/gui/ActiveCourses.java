@@ -49,7 +49,6 @@ public class ActiveCourses implements ItemListener {
 		frame.setLocationRelativeTo(null);
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		frame.setSize(500, 500);
-		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		frame.setVisible(true);
 		
 		displayCourses();
