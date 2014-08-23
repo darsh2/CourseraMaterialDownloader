@@ -23,15 +23,15 @@ import javax.swing.filechooser.FileSystemView;
 
 import coursera.coursematerial.downloader.DownloadExecutor;
 import coursera.coursematerial.downloader.DownloadLinks;
+import coursera.coursematerial.downloader.Resource;
 
 public class DownloadMaterial {
 	private String URL;
 	private final String cookie;
-	private ArrayList<String> titles, downloads, toDownload, downloadTitle;
-	private final boolean DEBUG = false;
-
+	private ArrayList<String> titles, lectures, txt, srt, pdf, ppt;
+	private ArrayList<Resource> toDownload;
 	private JLabel status;
-	private JButton lectures;
+	private JButton downloadButton;
 	private JPanel downloadPanel;
 	private JFrame frame;
 	private JScrollPane tableScroller;
@@ -46,9 +46,10 @@ public class DownloadMaterial {
 		setUpButtons();
 		setUpPanel();
 
-		frame = new JFrame("Lecture List");
+		frame = new JFrame("Course Item Resource List");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(800, 500);
+		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		frame.add(downloadPanel);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
@@ -57,22 +58,21 @@ public class DownloadMaterial {
 	}
 
 	private void setUpButtons() {
-		lectures = new JButton("Download Lectures");
-		lectures.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+		downloadButton = new JButton("Download");
+		downloadButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
 	}
 
 	private void setUpPanel() {
 		downloadPanel = new JPanel();
 		downloadPanel.setLayout(new BoxLayout(downloadPanel, BoxLayout.PAGE_AXIS));
-		downloadPanel.add(lectures);
+		downloadPanel.add(downloadButton);
 	}
 
 	private void addTableDisplay() {
 		table = new DownloadTable("Lectures");
 		DownloadLinks links = new DownloadLinks(URL, cookie);
 		titles = links.getLectureTitles();
-		downloads = links.getLectures();
-		
+		lectures = links.getLectures(); txt = links.getTXT(); srt = links.getSRT(); pdf = links.getPDF(); ppt = links.getPPT();
 		Iterator<String> it = titles.iterator();
 		while (it.hasNext())
 			table.addRows(it.next());
@@ -86,16 +86,15 @@ public class DownloadMaterial {
 
 		tableScroller = new JScrollPane(new JTable(table));
 		downloadPanel.add(tableScroller);
-
 		frame.validate();
 		frame.repaint();
 
-		lectures.addActionListener(new ActionListener() {
+		downloadButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				getSelectedDownloads();
-
+				System.out.println(toDownload.size());
 				if (toDownload.isEmpty())
 					addStatus("Select atleast one lecture", -1);
 				else {
@@ -105,13 +104,13 @@ public class DownloadMaterial {
 
 							@Override
 							protected Integer doInBackground() {
-								return new DownloadExecutor().executeDownload(toDownload, downloadTitle, convertFilePath(file.toString()), ".mp4", cookie);
+								return new DownloadExecutor().executeDownload(toDownload, titles, convertFilePath(file.toString()), cookie);
 							}
 
 							@Override
 							protected void done() {
 								try {
-									lectures.setEnabled(true);
+									downloadButton.setEnabled(true);
 									if (get() == 0)
 										addStatus("Download Complete", 0);
 									else
@@ -122,7 +121,7 @@ public class DownloadMaterial {
 							}
 						};
 						download.execute();
-						lectures.setEnabled(false);
+						downloadButton.setEnabled(false);
 						addStatus("Download in progress", 1);
 					}
 				}
@@ -132,17 +131,29 @@ public class DownloadMaterial {
 	}
 
 	private void getSelectedDownloads() {
-		toDownload = new ArrayList<String>(); downloadTitle = new ArrayList<String>();
-		int p = 0;
+		toDownload = new ArrayList<>();
+		ArrayList<Object> selections;
 		for (int i = 0, l = table.getRowCount(); i < l; i++) {
-			if ((boolean) table.isSelected(i)) {
-				toDownload.add(downloads.get(i));
-				downloadTitle.add(titles.get(i));
-
-				if (DEBUG)
-					System.out.println(toDownload.get(p) + " " + downloadTitle.get(p));
-
-				p++;
+			selections = table.isSelected(i);
+			if ((boolean) selections.get(0)) {
+				toDownload.add(new Resource(i, lectures.get(i)));
+				//System.out.println(lectures.get(i));
+			}
+			if ((boolean) selections.get(1)) {
+				toDownload.add(new Resource(i, txt.get(i)));
+				//System.out.println(txt.get(i));
+			}
+			if ((boolean) selections.get(2)) {
+				toDownload.add(new Resource(i, srt.get(i)));
+				//System.out.println(srt.get(i));
+			}
+			if ((boolean) selections.get(3) && pdf.get(i) != null) {
+				toDownload.add(new Resource(i, pdf.get(i)));
+				//System.out.println(pdf.get(i));
+			}
+			if ((boolean) selections.get(4) && ppt.get(i) != null) {
+				toDownload.add(new Resource(i, ppt.get(i)));
+				//System.out.println(ppt.get(i));
 			}
 		}
 	}
