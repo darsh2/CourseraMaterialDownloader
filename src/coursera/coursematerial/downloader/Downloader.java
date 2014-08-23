@@ -36,7 +36,8 @@ public class Downloader implements Runnable {
 			 */
 			
 			int fileSize = connection.getContentLength();
-			System.out.println(fileSize);
+			//if (fileSize < 0)
+				//System.out.println(filePath);
 			rbc = Channels.newChannel(connection.getInputStream());
 			out = new FileOutputStream(download);
 			out.getChannel().transferFrom(rbc, 0, fileSize);
