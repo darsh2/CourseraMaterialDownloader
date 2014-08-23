@@ -13,7 +13,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class DownloadLinks {
-	private ArrayList<String> titles, lectures;
+	private ArrayList<String> titles, lectures, textSubtitles, srtSubtitles, pdf, ppt;
 
 	private Document doc;
 	
@@ -39,7 +39,8 @@ public class DownloadLinks {
 
 	public ArrayList<String> getLectureTitles() {
 		titles = new ArrayList<String>();
-		lectures = new ArrayList<String>();
+		lectures = new ArrayList<String>(); textSubtitles = new ArrayList<>(); srtSubtitles = new ArrayList<>();
+		pdf = new ArrayList<>(); ppt = new ArrayList<>();
 
 		String format = "%d - %d - ";
 		int weekCount = 0;
@@ -52,11 +53,27 @@ public class DownloadLinks {
 				weeklyLectureCount++;
 				titles.add(String.format(format, weekCount, weeklyLectureCount) + lecture.select(".lecture-link").text());
 				Elements resources = lecture.select(".course-lecture-item-resource").select("a[href]");
+				boolean flag1 = false, flag2 = false;
 				for (Element resource : resources) { 
 					String URL = resource.attr("href");
 					if (URL.contains("download.mp4"))
 						lectures.add(URL);
+					else if (URL.contains("format=txt"))
+						textSubtitles.add(URL);
+					else if (URL.contains("format=srt"))
+						srtSubtitles.add(URL);
+					else if (URL.contains("pdf")) {
+						pdf.add(URL);
+						flag1 = true;
+					} else if (URL.contains("pptx")) {
+						ppt.add(URL);
+						flag2 = true;
+					}
 				}
+				if (!flag1)
+					pdf.add(null);
+				if (!flag2)
+					ppt.add(null);
 			}
 		}
 		return titles;
@@ -64,5 +81,21 @@ public class DownloadLinks {
 
 	public ArrayList<String> getLectures() {
 		return lectures;
+	}
+	
+	public ArrayList<String> getTXT() {
+		return textSubtitles;
+	}
+	
+	public ArrayList<String> getSRT() {
+		return srtSubtitles;
+	}
+	
+	public ArrayList<String> getPDF() {
+		return pdf;
+	}
+	
+	public ArrayList<String> getPPT() {
+		return ppt;
 	}
 }
