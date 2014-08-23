@@ -6,18 +6,20 @@ import javax.swing.table.AbstractTableModel;
 
 @SuppressWarnings("serial")
 public class DownloadTable extends AbstractTableModel {
-	private final String columnNames[] = new String[2];
+	private final String columnNames[] = new String[6];
 	private ArrayList<Object[]> rows = new ArrayList<Object[]>();
 	
 	public DownloadTable(String downloadType) {
 		columnNames[0] = downloadType;
-		columnNames[1] = "Download?";
+		columnNames[1] = "Lectures"; columnNames[2] = "Subtitles(txt)"; columnNames[3] = "Subtitles(srt)";
+		columnNames[4] = "Slides(pdf)"; columnNames[5] = "Slides(ppt)";
 	}
 	
 	public void addRows(String text) {
-		Object[] newRow = new Object[2];
+		Object[] newRow = new Object[6];
 		newRow[0] = text;
-		newRow[1] = false;
+		for (int i = 1; i < 6; i++)
+			newRow[i] = false;
 		rows.add(newRow);
 	}
 
@@ -43,14 +45,14 @@ public class DownloadTable extends AbstractTableModel {
 	
 	@Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        if (columnIndex == 1 && aValue instanceof Boolean) {
+        if (columnIndex > 0 && aValue instanceof Boolean) {
             rows.get(rowIndex)[columnIndex] = aValue;
         }
     }
 	
 	@Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return columnIndex == 1;
+        return columnIndex > 0;
     }
 	
 	@Override
@@ -62,7 +64,10 @@ public class DownloadTable extends AbstractTableModel {
 		return rows.get(row)[0];
 	}
 	
-	public Object isSelected(int row) {
-		return rows.get(row)[1];
+	public ArrayList<Object> isSelected(int row) {
+		ArrayList<Object> selections = new ArrayList<>();
+		for (int i = 1; i < 6; i++)
+			selections.add(rows.get(row)[i]);
+		return selections;
 	}
 }
