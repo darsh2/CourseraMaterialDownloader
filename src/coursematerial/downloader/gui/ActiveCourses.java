@@ -15,6 +15,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
@@ -26,6 +27,7 @@ public class ActiveCourses implements ItemListener {
 	private boolean error = false;
 	
 	private JFrame frame;
+	private JScrollPane scrollPane;
 	private JPanel panel;
 	private JLabel label;
 	private JCheckBox selected[];
@@ -46,7 +48,8 @@ public class ActiveCourses implements ItemListener {
 		frame.add(panel);
 		frame.setLocationRelativeTo(null);
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		frame.setSize(300, 300);
+		frame.setSize(500, 500);
+		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		frame.setVisible(true);
 		
 		displayCourses();
@@ -108,6 +111,8 @@ public class ActiveCourses implements ItemListener {
 			panel.add(selected[i]);
 		}
 		
+		scrollPane = new JScrollPane(panel);
+		frame.setContentPane(scrollPane);
 		frame.revalidate();
 		frame.repaint();
 	}
